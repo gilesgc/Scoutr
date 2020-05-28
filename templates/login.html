@@ -3,4 +3,11 @@
 <form method="POST">
 <input type="password" name="password">
 <button type="submit">Login</button>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <h3>{{ message }}</h3>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 </form>
