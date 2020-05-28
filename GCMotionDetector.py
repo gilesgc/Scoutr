@@ -16,7 +16,7 @@ class GCMotionDetector(object):
 
 		cv2.accumulateWeighted(image, self.bg, self.accumWeight)
 
-	def detect(self, image, tVal=100):
+	def detect(self, image, tVal=50):
 		delta = cv2.absdiff(self.bg.astype("uint8"), image)
 		thresh = cv2.threshold(delta, tVal, 255, cv2.THRESH_BINARY)[1]
 

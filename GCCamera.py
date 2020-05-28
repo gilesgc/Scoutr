@@ -7,7 +7,8 @@ class GCCamera(object):
         self.threadLock = threadLock
         self.videocapture = cv2.VideoCapture(src)
         self.motionDetector = GCMotionDetector(accumWeight=0.1)
-        self.outputframe = list()
+        self.outputframe = None
+        self.builtBackground = False
 
     def currentFrame(self):
         return self.outputframe
@@ -25,6 +26,7 @@ class GCCamera(object):
             #cv2.putText(frame, timestamp.strftime("%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
             if total > self.frameCount:
+                if not self.builtBackground: self.builtBackground = True
                 motion = self.motionDetector.detect(gray)
 
                 if motion is not None:
@@ -35,8 +37,7 @@ class GCCamera(object):
             total += 1
 
             with self.threadLock:
-                print("YEP")
-                self.outputframe.append(frame)
+                self.outputframe = frame
 
 
         
