@@ -1,12 +1,73 @@
- <html> 
- <head> 
-   <title>Video Stream </title> 
- </head> 
- <body> 
-   <h1> Live Video Stream </h1> 
-   <img src="{{ url_for('video_feed') }}"> 
- </body>
- <form method="POST">
-   <button type="submit">Log out</button>
- </form>
+<html>
+<head>
+  <title>GCam</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+   <div class="limiter">
+     <div class="container-login100">
+      <div class="wrap-login100 p-t-50 p-b-90" style="width:min-content">
+
+        <h1 class="login100-form-title p-b-51">GCam Live Stream</h1>
+        <div class="button-container m-t-17">
+          <img data-enlargable src="{{ url_for('video_feed') }}">
+        </div>
+        <table class="m-t-17" style="width:100%; table-layout:fixed;">
+          <tr>
+            <th><button class="form-button green-button" onclick="fullscreen()">Fullscreen</button></th>
+            <th><button class="form-button">BTN2</button></th>
+            <th><button class="form-button">BTN3</button></th>
+          </tr>
+          <tr>
+            <th><button class="form-button">BTN4</button></th>
+            <th><button class="form-button">BTN5</button></th>
+            <th><button class="form-button">BTN6</button></th>
+          </tr>
+        </table>
+        <form method="POST">
+          <button type="submit" class="form-button red-button m-t-17">Log out</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+  <script>
+    function fullscreen() {
+      var src = $('img[data-enlargable]').attr('src')
+      var modal;
+      function removeModal(){ modal.remove(); $('body').off('keyup.modal-close'); }
+      modal = $('<div>').css({
+          background: 'RGBA(0,0,0,.5) url('+src+') no-repeat center',
+          backgroundSize: 'contain',
+          width:'100%', height:'100%',
+          position:'fixed',
+          zIndex:'10000',
+          top:'0', left:'0',
+          cursor: 'zoom-out'
+      }).click(function(){
+          removeModal();
+      }).appendTo('body');
+      //handling ESC
+      $('body').on('keyup.modal-close', function(e){
+        if(e.key==='Escape'){ removeModal(); } 
+      });
+
+      /*elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }*/
+    }
+    $('img[data-enlargable]').addClass('img-enlargable').click(function(){
+      fullscreen();
+    });
+  </script>
+</body>
 </html> 

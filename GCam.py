@@ -29,7 +29,7 @@ def index():
       session.pop('logged_in', None)
       return redirect(url_for('login'))
 
-   if 'logged_in' in session and session['logged_in'] == True:
+   if isLoggedIn():
       return render_template('index.html')
    else:
       return redirect(url_for('login'))
@@ -45,7 +45,7 @@ def login():
       else:
          flash("Wrong password.")
    
-   if request.method == 'GET' and 'logged_in' in session and session['logged_in'] == True:
+   if request.method == 'GET' and isLoggedIn():
       return redirect(url_for('index'))
 
    return render_template('login.html')
@@ -64,13 +64,20 @@ def gen():
       
       yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
 
+      time.sleep(0.1)
+
 @app.route('/video_feed')
 def video_feed():
-   return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+   if isLoggedIn():
+      return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+   else:
+      return redirect(url_for('index'))
 
+def isLoggedIn():
+   return 'logged_in' in session and session['logged_in'] == True
 
 if __name__ == '__main__':
    thread = threading.Thread(target=GCCamera.runInBackground, args=(camera,))
    thread.setDaemon(True)
    thread.start()
-   app.run(host='0.0.0.0', debug=True, threaded=True, use_reloader=False)
+   app.run(host='0.0.0.0', port=5000, debug=True, threaded=True, use_reloader=False)

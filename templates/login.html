@@ -1,13 +1,46 @@
-<h1>Please enter the security camera password</h1>
+<html>
+<head>
+	<title>GCam</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
+</head>
 
-<form method="POST">
-<input type="password" name="password">
-<button type="submit">Login</button>
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <h3>{{ message }}</h3>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-</form>
+<body>
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100 p-t-50 p-b-90">
+				<form method="POST" class="login100-form validate-form flex-sb flex-w">
+					<span class="login100-form-title p-b-51">
+						Welcome back to GCam
+						<br />
+						<br />
+						Please enter the security camera password
+					</span>
+					
+					
+					<div class="wrap-input100 validate-input m-b-16" data-validate = "Password">
+						<input class="input100" type="password" name="password" placeholder="Password">
+						<span class="focus-input100"></span>
+					</div>
+				
+
+					<div class="button-container m-t-17">
+						<button class="form-button">
+							Login
+						</button>
+					</div>
+
+				</form>
+				{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						{% for message in messages %}
+							<br />
+							<span class="login100-form-title p-b-51" style="color:rgb(185, 32, 21);">{{ message }}</span>
+						{% endfor %}
+					{% endif %}
+				{% endwith %}
+			</div>
+		</div>
+	</div>
+</body>
+</html>
