@@ -73,6 +73,15 @@ def video_feed():
    else:
       return redirect(url_for('index'))
 
+@app.route('/latest_clip')
+def latest_clip():
+   import glob
+   import os
+   list_of_files = glob.glob('static/clips/*')
+   latest_file = max(list_of_files, key=os.path.getctime)
+   return render_template('latest_clip.html', url=url_for('static', filename=("clips/" + os.path.basename(latest_file))))
+   
+
 def isLoggedIn():
    return 'logged_in' in session and session['logged_in'] == True
 
