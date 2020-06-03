@@ -8,18 +8,33 @@ from flask import (
    request,
    flash
 )
+from flask_sqlalchemy import SQLAlchemy
 import cv2
 import threading
 from Crypto.Hash import SHA512
-from GCCamera import GCCamera
+from camera.GCCamera import GCCamera
 import time
+from datetime import datetime
 
-lock = threading.Lock()
-camera = GCCamera(64, lock)
 password_hash_hex = '7ad4d51280e6e3f582ef51f1411f9852f5777ea1ddffc9192142a7872a9d159df3dd23946aee439e113e10ec49f833d452e59e847a44784f12ad71355ea3a376'
 
 app = Flask(__name__)
 app.secret_key = b'\xcd\x04=\x01e\r\x95\xf8\xa5\x9c@\x04\x85\xc2\xff\xcd'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/db.sqlite3'
+
+db = SQLAlchemy(app)
+
+class Clip(db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   name = db.Column(db.String(100))
+   video_path = db.Column(db.String(50))
+   thumbnail_path = db.Column(db.String(50))
+   date_created = db.Column(db.DateTime, default=datetime.now)
+
+lock = threading.Lock()
+camera = GCCamera(64, lock, db)
 
 time.sleep(2)
 
@@ -80,7 +95,11 @@ def latest_clip():
    list_of_files = glob.glob('static/clips/*')
    latest_file = max(list_of_files, key=os.path.getctime)
    return render_template('latest_clip.html', url=url_for('static', filename=("clips/" + os.path.basename(latest_file))))
-   
+
+@app.route('/id/<id>')
+def view_id(id):
+   url = Clip.query.filter_by(id=int(id)).first().video_path
+   return render_template('latest_clip.html', url=url)
 
 def isLoggedIn():
    return 'logged_in' in session and session['logged_in'] == True

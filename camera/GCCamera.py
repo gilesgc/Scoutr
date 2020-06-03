@@ -1,15 +1,15 @@
 import cv2
-from GCMotionDetector import GCMotionDetector
-from GCRecorder import GCRecorder
+from .GCMotionDetector import GCMotionDetector
+from .GCRecorder import GCRecorder
 import time
 
 class GCCamera(object):
-    def __init__(self, frameCount, threadLock, src=0):
+    def __init__(self, frameCount, threadLock, database, src=0):
         self.frameCount = frameCount
         self.threadLock = threadLock
         self.videocapture = cv2.VideoCapture(src)
         self.motionDetector = GCMotionDetector(accumWeight=0.1)
-        self.recorder = GCRecorder()
+        self.recorder = GCRecorder(database)
         self.outputframe = None
 
     def currentFrame(self):
