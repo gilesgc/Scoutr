@@ -1,0 +1,376 @@
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
+
+* {
+  font-family: "Ubuntu", sans-serif;
+}
+
+body {
+  width: 80%;
+  margin: 30px auto;
+  font-family: sans-serif;
+}
+
+/*h3 {
+  text-align: center;
+  font-size: 1.65em;
+  margin: 0 0 30px;
+}*/
+
+#grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.clip-preview {
+  display: inline-block;
+  margin-bottom: 50px;
+  width: calc(50% - 4px);
+  margin-right: 8px;
+  text-decoration: none;
+  color: black;
+  cursor: pointer;
+  transition: 0.2s;
+  /*border-color:black;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;*/
+}
+
+.clip-preview:nth-of-type(2n) {
+  margin-right: 0;
+}
+
+@media screen and (min-width: 50em) {
+  .clip-preview {
+    width: calc(25% - 6px);
+  }
+  
+  .clip-preview:nth-of-type(2n) {
+    margin-right: 8px;
+  }
+  
+  .clip-preview:nth-of-type(4n) {
+    margin-right: 0;
+  }
+}
+
+figure {
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+figcaption {
+  margin-top: 5px;
+  transition: all 0.2s;
+  font-weight: bold;
+  padding-left: 2px;
+}
+
+.ago {
+  margin-top: 1px;
+  color: gray;
+  font-weight: normal;
+}
+
+img {
+  border: none;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  background: none;
+  transition: transform .2s;
+  border-radius: 5px;
+}
+
+.p a {
+  display: inline;
+  font-size: 13px;
+  margin: 0;
+  text-decoration: underline;
+  color: blue;
+}
+
+.p {
+  text-align: center;
+  font-size: 13px;
+  padding-top: 100px;
+}
+
+/*.clip-preview:hover {
+  background-color:rgb(247, 247, 247);
+}*/
+
+.clip-preview:hover figcaption {
+    color: #1976d2;
+}
+
+.play {
+    opacity: 0;
+    transition: opacity 0.2s;
+    /*background-image:url("https://www.nationalgeographic.com/content/dam/yourshot/2015/07/6371474.jpg");*/
+    left: 50% !important; transform: translate(-50%,0); position:absolute; z-index: 1;
+}
+
+.clip-preview:hover .play {
+    opacity: 1;
+}
+
+.time {
+  position:absolute;
+  bottom:33px;
+  right:5px;
+  background-color:RGBA(0, 0, 0, 0.6);
+  color:white;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 30px !important;
+  color: #3e5375;
+  line-height: 1.2;
+  /*text-transform: uppercase;*/
+  text-align: center;
+
+  width: 100%;
+  display: block;
+
+}
+
+
+#modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+
+  justify-content: center;
+  align-items: center;
+  
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;;
+}
+
+/* Modal Content */
+#modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  /*border: 1px solid #888;*/
+  width: min-content;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  /*animation-name: animatebottom;
+  animation-duration: 0.4s;*/
+}
+
+.modalshow {
+  animation: animatebottom 0.4s;
+}
+
+.modalhide {
+  animation: animatebottomreverse 0.4s;
+}
+
+@keyframes animatebottom{from{bottom:-300px;opacity:0} to{bottom:0;opacity:1}}
+
+@keyframes animatebottomreverse {
+  from {bottom:0; opacity:1}
+  to {bottom:-300px;opacity:0}
+}
+
+#modal-header {
+  padding: 2px 16px;
+  background-color: #1976d2;
+  color: white;
+}
+
+#modal-body {
+  padding: 2px 16px;
+  display:flex;
+  justify-content: center;
+}
+
+#modal-footer {
+  padding: 2px 16px;
+  background-color: #1976d2;
+  color: white;
+}
+
+
+#snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+}
+
+#snackbar.show {
+  visibility: visible;
+  animation: snackbarfadein 0.5s, snackbarfadeout 0.5s 2.5s;
+}
+
+@keyframes snackbarfadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes snackbarfadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+</style>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+</head>
+
+<h1 class="title">Clips</h1>
+
+<div id="grid">
+    {% if clips %}
+        {% for clip in clips %}
+            <div class="clip-preview" clip_id="{{ clip.id }}" clip_video_path="{{ clip.video_path }}">
+                <figure>
+                    <p class="time">{{ clip.formatLength() }}</p>
+                    <!--<img class="play" src="/static/resources/play.png">-->
+                    <img src="{{ clip.thumbnail_path }}">
+                    <figcaption class="clip-name">{{ clip.name }}</figcaption>
+                    <figcaption class="ago">{{ clip.timeAgo() }}</figcaption>
+                </figure>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div id="modal">
+  <div id="modal-content">
+    <div id="modal-header">
+      <h2 id="modal-title">View clip</h2>
+    </div>
+    <div id="modal-body">
+      <video id="videoPlayer" width="640" height="480" controls>
+      </video>
+    </div>
+    <div id="modal-footer">
+      <button onclick="trash()">Delete</button>
+      <button onclick="rename()">Rename</button>
+    </div>
+  </div>
+</div>
+
+<div id="snackbar"></div>
+
+<script>
+  var selectedClip;
+  var modal = document.getElementById("modal");
+  var modalcontent = document.getElementById("modal-content");
+  var snackbar = document.getElementById("snackbar");
+
+  $(".clip-preview").click(function(event) {
+    selectedClip = event.currentTarget;
+
+    var video = document.getElementById("videoPlayer");
+    video.src = selectedClip.getAttribute("clip_video_path");
+    video.load();
+    
+    showModal();
+
+    video.play();
+  });
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      hideModal();
+    }
+  }
+
+  function showModal() {
+    setModalTitle(selectedClip.querySelector(".clip-name").innerHTML);
+    modal.style.display = "flex";
+    modalcontent.classList.add("modalshow");
+  }
+  function hideModal() {
+    modalcontent.classList.remove("modalshow");
+    modalcontent.classList.add("modalhide");
+    setTimeout(function() {
+      modal.style.display = "none";
+      modalcontent.classList.remove("modalhide");
+    }, 350);
+  }
+  function setModalTitle(text) {
+    document.getElementById("modal-title").innerHTML = text
+  }
+
+  function showSnackbar(text) {
+    snackbar.innerHTML = text;
+    snackbar.className = "show"
+    setTimeout(function() {snackbar.className = snackbar.className.replace("show", "")}, 2900);
+  }
+
+  function rename() {
+    newname = prompt("Please enter the new clip name")
+
+    if(newname === "") {
+      showSnackbar("Name cannot be blank!");
+      return;
+    }
+    else if(newname === null) {
+      return;
+    }
+    
+    $.post(
+      "/rename_clip",
+      {
+        "clip_id" : selectedClip.getAttribute("clip_id"),
+        "name" : newname
+      })
+      .fail(function(data, status) {
+        alert("An error occured:\n" + data);
+      })
+      .done(function(data, success) {
+        selectedClip.querySelector(".clip-name").innerHTML = newname;
+        setModalTitle(newname);
+        showSnackbar("Clip has been renamed.");
+      }
+    );
+  }
+
+  function trash() {
+    if(!confirm("Are you sure you want to delete?"))
+      return;
+
+    $.post(
+      "/delete_clip",
+      {"clip_id":selectedClip.getAttribute("clip_id")}
+    )
+    .fail(function(data, status) {
+      alert("An error occured:\n" + data);
+    })
+    .done(function(data, status) {
+        selectedClip.remove();
+        hideModal();
+        showSnackbar("Clip has been deleted.");
+    });
+  }
+</script>

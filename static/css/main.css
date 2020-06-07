@@ -186,7 +186,7 @@ iframe {
   font-size: 30px !important;
   color: #3e5375;
   line-height: 1.2;
-  //text-transform: uppercase;
+  /*text-transform: uppercase;*/
   text-align: center;
 
   width: 100%;
@@ -382,4 +382,11 @@ iframe {
 }
 .purple-button:hover {
   background-color: #4a0072;
+}
+
+.blue-button {
+  background-color: #1976d2;
+}
+.blue-button:hover {
+  background-color: #004ba0;
 }

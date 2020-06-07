@@ -72,17 +72,21 @@ class GCRecorder(object):
         thumbnailPath = f"static/thumbnail/{fileName}.jpg"
         cv2.imwrite(thumbnailPath, thumbnailFrame)
 
-        self._writeClipToDatabase(fileName, "/" + videoPath, "/" + thumbnailPath)
+        videoLength = self.recordingQueue.qsize() / 10.0
+
+        self._writeClipToDatabase(fileName, "/" + videoPath, "/" + thumbnailPath, videoLength)
 
         print(f" * Clip \"{fileName}.mp4\" has been saved")
         self.backlogFrames.clear()
         self.recordingQueue.queue.clear()
+        framesCaptured = 0
+        lastMovementFrame = 0
 
-    def _writeClipToDatabase(self, name, videoPath, thumbnailPath):
+    def _writeClipToDatabase(self, name, videoPath, thumbnailPath, videoLength):
         if self.Clip is None:
             print(" * ERROR: Class object for Clip not found")
             return
-        clip = self.Clip(name=name, video_path=videoPath, thumbnail_path=thumbnailPath)
+        clip = self.Clip(name=name, video_path=videoPath, thumbnail_path=thumbnailPath, length=videoLength)
         self.database.session.add(clip)
         self.database.session.commit()
 

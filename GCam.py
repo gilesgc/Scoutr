@@ -15,6 +15,8 @@ from Crypto.Hash import SHA512
 from camera.GCCamera import GCCamera
 import time
 from datetime import datetime
+import timeago
+import os
 
 password_hash_hex = '7ad4d51280e6e3f582ef51f1411f9852f5777ea1ddffc9192142a7872a9d159df3dd23946aee439e113e10ec49f833d452e59e847a44784f12ad71355ea3a376'
 
@@ -32,6 +34,13 @@ class Clip(db.Model):
    video_path = db.Column(db.String(50))
    thumbnail_path = db.Column(db.String(50))
    date_created = db.Column(db.DateTime, default=datetime.now)
+   length = db.Column(db.Integer)
+
+   def timeAgo(self):
+      return timeago.format(self.date_created, datetime.now())
+
+   def formatLength(self):
+      return str(int(self.length // 60)) + ":" + str(int(self.length % 60)).zfill(2)
 
 lock = threading.Lock()
 camera = GCCamera(64, lock, db)
@@ -96,10 +105,56 @@ def latest_clip():
    latest_file = max(list_of_files, key=os.path.getctime)
    return render_template('latest_clip.html', url=url_for('static', filename=("clips/" + os.path.basename(latest_file))))
 
-@app.route('/id/<id>')
-def view_id(id):
-   url = Clip.query.filter_by(id=int(id)).first().video_path
-   return render_template('latest_clip.html', url=url)
+@app.route('/clips')
+def clips():
+   clips = Clip.query.all()
+   return render_template('clips.html', clips=clips)
+
+@app.route('/view_clip')
+def view_clip():
+   if request.args.get('clip_id') is None:
+      return "You did something wrong!!!"
+   
+   clip = Clip.query.filter_by(id=int(request.args['clip_id'])).first()
+   return render_template('view_clip.html', clip=clip)
+
+@app.route('/delete_clip', methods=['POST'])
+def delete_clip():
+   if request.form.get('clip_id') is None:
+      return "Missing the clip_id form data", 400
+
+   clip_id = int(request.form.get('clip_id'))
+   clip = Clip.query.filter_by(id=clip_id).first()
+   if clip is None:
+      return "No clip with that id found.", 400
+
+   try:
+      os.remove(clip.video_path[1:])
+      os.remove(clip.thumbnail_path[1:])
+   except Exception as e:
+      print(" * Error when deleting local copy of clip\n" + str(e))
+
+   db.session.delete(clip)
+   db.session.commit()
+
+   return "Success.", 200
+
+@app.route('/rename_clip', methods=['POST'])
+def rename_clip():
+   if request.form.get('clip_id') is None or request.form.get('name') is None:
+      return "Missing required form data", 400
+   
+   clip_id = int(request.form.get('clip_id'))
+   clip = Clip.query.filter_by(id=clip_id).first()
+   if clip is None:
+      return "No clip with that id found.", 400
+   
+   new_name = request.form.get('name')
+
+   clip.name = new_name
+   db.session.commit()
+
+   return "Success.", 200
 
 def isLoggedIn():
    return 'logged_in' in session and session['logged_in'] == True

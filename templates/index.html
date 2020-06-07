@@ -3,22 +3,7 @@
   <title>GCam</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <style>
-    #overlay {
-      position: fixed;
-      display: none;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 2;
-      cursor: pointer;
-    }
-  </style>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
 </head>
 <body>
    <div class="limiter">
@@ -33,7 +18,7 @@
           <tr>
             <th><button class="form-button green-button" onclick="fullscreen()">Fullscreen</button></th>
             <th><button class="form-button purple-button" onclick="window.open('/latest_clip','_blank')">Latest clip</button></th>
-            <th><button class="form-button" onclick="on()">OPEN OVERLAY!!!</button></th>
+            <th><button class="form-button blue-button" onclick="window.open('/clips','_blank')">All clips</button></th>
           </tr>
           <tr>
             <th><button class="form-button">BTN4</button></th>
