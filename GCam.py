@@ -17,6 +17,7 @@ import time
 from datetime import datetime
 import timeago
 import os
+import json
 
 password_hash_hex = '7ad4d51280e6e3f582ef51f1411f9852f5777ea1ddffc9192142a7872a9d159df3dd23946aee439e113e10ec49f833d452e59e847a44784f12ad71355ea3a376'
 
@@ -41,6 +42,16 @@ class Clip(db.Model):
 
    def formatLength(self):
       return str(int(self.length // 60)) + ":" + str(int(self.length % 60)).zfill(2)
+
+   def jsonData(self):
+      return {
+         "id" : self.id,
+         "name" : self.name,
+         "video_path" : self.video_path,
+         "thumbnail_path" : self.thumbnail_path,
+         "length_formatted" : self.formatLength(),
+         "time_ago" : self.timeAgo()
+      }
 
 lock = threading.Lock()
 camera = GCCamera(64, lock, db)
@@ -97,26 +108,10 @@ def video_feed():
    else:
       return redirect(url_for('index'))
 
-@app.route('/latest_clip')
-def latest_clip():
-   import glob
-   import os
-   list_of_files = glob.glob('static/clips/*')
-   latest_file = max(list_of_files, key=os.path.getctime)
-   return render_template('latest_clip.html', url=url_for('static', filename=("clips/" + os.path.basename(latest_file))))
-
 @app.route('/clips')
 def clips():
    clips = Clip.query.all()
-   return render_template('clips.html', clips=clips)
-
-@app.route('/view_clip')
-def view_clip():
-   if request.args.get('clip_id') is None:
-      return "You did something wrong!!!"
-   
-   clip = Clip.query.filter_by(id=int(request.args['clip_id'])).first()
-   return render_template('view_clip.html', clip=clip)
+   return render_template('clips.html', clips=clips_for_page(1))#clips[::-1])
 
 @app.route('/delete_clip', methods=['POST'])
 def delete_clip():
@@ -149,12 +144,26 @@ def rename_clip():
    if clip is None:
       return "No clip with that id found.", 400
    
-   new_name = request.form.get('name')
+   new_name = str(request.form.get('name'))
 
    clip.name = new_name
    db.session.commit()
 
    return "Success.", 200
+
+@app.route('/clips/page', methods=['POST'])
+def page():
+   if request.form.get('page') is None:
+      return "Missing required form data", 400
+   
+   page_number = int(request.form.get('page'))
+   clips = [clip.jsonData() for clip in clips_for_page(page_number)]
+   return json.dumps(clips)
+
+def clips_for_page(page: int):
+   clips_per_page = 20
+   all_clips = Clip.query.all()[::-1]
+   return all_clips[clips_per_page * (page - 1) : clips_per_page * page]
 
 def isLoggedIn():
    return 'logged_in' in session and session['logged_in'] == True

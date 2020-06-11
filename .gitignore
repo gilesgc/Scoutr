@@ -1,3 +1,4 @@
 __pycache__
-static/clips
-static/thumbnail
+static/clips/*
+static/thumbnail/*
+database/db.sqlite3

@@ -12,32 +12,18 @@
 
         <h1 class="login100-form-title p-b-51">GCam Live Stream</h1>
         <div class="button-container m-t-17">
-          <img data-enlargable src="{{ url_for('video_feed') }}">
+          <img data-enlargable style="border-radius: 3px" src="{{ url_for('video_feed') }}">
         </div>
         <table class="m-t-17" style="width:100%; table-layout:fixed;">
           <tr>
             <th><button class="form-button green-button" onclick="fullscreen()">Fullscreen</button></th>
-            <th><button class="form-button purple-button" onclick="window.open('/latest_clip','_blank')">Latest clip</button></th>
             <th><button class="form-button blue-button" onclick="window.open('/clips','_blank')">All clips</button></th>
-          </tr>
-          <tr>
-            <th><button class="form-button">BTN4</button></th>
-            <th><button class="form-button">BTN5</button></th>
-            <th><button class="form-button">BTN6</button></th>
           </tr>
         </table>
         <form method="POST">
           <button type="submit" class="form-button red-button m-t-17">Log out</button>
         </form>
 
-      </div>
-    </div>
-  </div>
-  <div id="overlay">
-    <div class="container-login100">
-      <div class="wrap-login100 p-t-30 p-b-90">
-        <button class="form-button" style="position:absolute; right:10px; top:5px; width:auto;" onclick="off()">X</button>
-        <h1>Overlay</h1>
       </div>
     </div>
   </div>
