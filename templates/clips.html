@@ -322,21 +322,20 @@ img {
 </div>
 
 <div id="modal">
-  <div id="modal-content">
-    <div id="modal-header">
-      <span id="close">&times;</span>
-      <h2 id="modal-title">View clip</h2>
+	<div id="modal-content">
+    	<div id="modal-header">
+    	<span id="close">&times;</span>
+    	<h2 id="modal-title">View clip</h2>
     </div>
     <div id="modal-body">
-      <video id="videoPlayer" width="640" height="480" controls>
-      </video>
+    	<video id="video-player" width="640" height="480" controls>
+    	</video>
     </div>
     <div id="modal-footer">
-      <image class="modal-button" title="Delete" src="/static/resources/trash-can.png" onclick="trash()"></image>
-      <image class="modal-button" title="Rename" src="/static/resources/edit.png" onclick="rename()"></image>
-      <!--<image class="modal-button" title="Favorite" src="/static/resources/star.png" onclick="favorite()"></image>-->
+    	<image class="modal-button" title="Delete" src="/static/resources/trash-can.png" onclick="trash()"></image>
+    	<image class="modal-button" title="Rename" src="/static/resources/edit.png" onclick="rename()"></image>
+    	<!--<image class="modal-button" title="Favorite" src="/static/resources/star.png" onclick="favorite()"></image>-->
     </div>
-  </div>
 </div>
 
 <div id="snackbar"></div>
@@ -351,7 +350,7 @@ img {
   $(document.body).on('click', '.clip-preview', function(event) {
     selectedClip = event.currentTarget;
 
-    var video = document.getElementById("videoPlayer");
+    var video = document.getElementById("video-player");
     video.src = selectedClip.getAttribute("clip_video_path");
     video.load();
     
@@ -365,9 +364,9 @@ img {
   });
 
   $("#search").on('input', function() {
-    search_text = document.getElementById("search").value;
+    search_text = document.getElementById("search").value.toLowerCase();
     Array.from(document.getElementById("grid").children).forEach(function(clip_preview) {
-      if(clip_preview.querySelector(".clip-name").innerText.includes(search_text)) {
+      if(clip_preview.querySelector(".clip-name").innerText.toLowerCase().includes(search_text)) {
         clip_preview.style.display = "block";
       } else {
         clip_preview.style.display = "none";
@@ -454,11 +453,11 @@ img {
   class Clip {
     constructor(jsondata) {
       this.id = jsondata['id'];
-      this.name = jsondata['name']
-      this.video_path = jsondata['video_path']
-      this.thumbnail_path = jsondata['thumbnail_path']
-      this.length_formatted = jsondata['length_formatted']
-      this.time_ago = jsondata['time_ago']
+      this.name = jsondata['name'];
+      this.video_path = jsondata['video_path'];
+      this.thumbnail_path = jsondata['thumbnail_path'];
+      this.length_formatted = jsondata['length_formatted'];
+      this.time_ago = jsondata['time_ago'];
     }
 
     asElement() {
@@ -466,8 +465,6 @@ img {
       clip_preview.setAttribute("class", "clip-preview");
       clip_preview.setAttribute("clip_id", this.id);
       clip_preview.setAttribute("clip_video_path", this.video_path);
-
-      var figure = document.createElement("figure");
       
       var length = document.createElement("p");
       length.setAttribute("class", "time");
@@ -484,6 +481,7 @@ img {
       ago.setAttribute("class", "ago");
       ago.innerText = this.time_ago;
 
+      var figure = document.createElement("figure");
       figure.appendChild(length);
       figure.appendChild(thumbnail);
       figure.appendChild(clipname);
@@ -496,15 +494,20 @@ img {
   }
 
   var working = false;
+  var loadedAll = false;
   $(window).scroll(function() {
     if($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
-       if(working) {
+       if(working || loadedAll) {
          return;
        }
 
        working = true;
        $.post("/clips/page", {"page" : ++page}, function(data) {
           data = JSON.parse(data);
+          if(data.length == 0) {
+            loadedAll = true;
+            return;
+          }
           data.forEach(function(clipdata) {
             var clip = new Clip(clipdata);
             $("#grid").append(clip.asElement());

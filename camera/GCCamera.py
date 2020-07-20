@@ -4,12 +4,13 @@ from .GCRecorder import GCRecorder
 import time
 
 class GCCamera(object):
-    def __init__(self, frameCount, threadLock, database, src=0):
+    def __init__(self, frameCount, threadLock, database, settings, src=0):
         self.frameCount = frameCount
         self.threadLock = threadLock
         self.videocapture = cv2.VideoCapture(src)
         self.motionDetector = GCMotionDetector(accumWeight=0.1)
-        self.recorder = GCRecorder(database)
+        self.recorder = GCRecorder(database, settings)
+        self.settings = settings
         self.outputframe = None
 
     def currentFrame(self):
@@ -33,8 +34,9 @@ class GCCamera(object):
 
                 if motion is not None:
                     detectedMovement = True
-                    (thresh, (minX, minY, maxX, maxY)) = motion
-                    cv2.rectangle(frame, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
+                    if self.settings.movement_square_enabled:
+                        (thresh, (minX, minY, maxX, maxY)) = motion
+                        cv2.rectangle(frame, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
 
                 self.recorder.addFrame(frame, detectedMovement)
             

@@ -8,10 +8,11 @@ from datetime import datetime
 class GCRecorder(object):
     fourcc = cv2.VideoWriter_fourcc(*"avc1")
 
-    def __init__(self, database, backlogSize=20):
+    def __init__(self, database, settings, backlogSize=20):
         self.backlogSize = backlogSize
         self.backlogFrames = deque(maxlen=backlogSize)
         self.database = database
+        self.settings = settings
         self.recordingQueue = None
         self.writer = None
         self.recording = False
@@ -58,25 +59,27 @@ class GCRecorder(object):
         self.thread.start()
 
     def _saveVideo(self):
-        shape = (self.backlogFrames[0].shape[1], self.backlogFrames[0].shape[0])
-        dateFormat = "%m-%d-%Y--%I-%M-%S-%p"
-        fileName = datetime.now().strftime(dateFormat)
-        videoPath = f"static/clips/{fileName}.mp4"
-        self.writer = cv2.VideoWriter(videoPath, GCRecorder.fourcc, 10.0, shape)
-        
-        for frame in self.recordingQueue.queue:
-            self.writer.write(frame)
-        self.writer.release()
+        if self.settings.save_clips_enabled:
+            shape = (self.backlogFrames[0].shape[1], self.backlogFrames[0].shape[0])
+            dateFormat = "%m-%d-%Y--%I-%M-%S-%p"
+            fileName = datetime.now().strftime(dateFormat)
+            videoPath = f"static/clips/{fileName}.mp4"
+            self.writer = cv2.VideoWriter(videoPath, GCRecorder.fourcc, 10.0, shape)
+            
+            for frame in self.recordingQueue.queue:
+                self.writer.write(frame)
+            self.writer.release()
 
-        thumbnailFrame = self.recordingQueue.queue[int(self.recordingQueue.qsize() / 2)]
-        thumbnailPath = f"static/thumbnail/{fileName}.jpg"
-        cv2.imwrite(thumbnailPath, thumbnailFrame)
+            thumbnailFrame = self.recordingQueue.queue[int(self.recordingQueue.qsize() / 2)]
+            thumbnailPath = f"static/thumbnail/{fileName}.jpg"
+            cv2.imwrite(thumbnailPath, thumbnailFrame)
 
-        videoLength = self.recordingQueue.qsize() / 10.0
+            videoLength = self.recordingQueue.qsize() / 10.0
 
-        self._writeClipToDatabase(fileName, "/" + videoPath, "/" + thumbnailPath, videoLength)
+            self._writeClipToDatabase(fileName, "/" + videoPath, "/" + thumbnailPath, videoLength)
 
-        print(f" * Clip \"{fileName}.mp4\" has been saved")
+            print(f" * Clip \"{fileName}.mp4\" has been saved")
+            
         self.backlogFrames.clear()
         self.recordingQueue.queue.clear()
         framesCaptured = 0

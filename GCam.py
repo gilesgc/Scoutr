@@ -13,13 +13,17 @@ import cv2
 import threading
 from Crypto.Hash import SHA512
 from camera.GCCamera import GCCamera
+from camera.GCSettingsManager import GCSettingsManager
 import time
 from datetime import datetime
 import timeago
 import os
 import json
 
-password_hash_hex = '7ad4d51280e6e3f582ef51f1411f9852f5777ea1ddffc9192142a7872a9d159df3dd23946aee439e113e10ec49f833d452e59e847a44784f12ad71355ea3a376'
+settings = GCSettingsManager()
+
+password_hash_hex = settings.password_hash
+password_salt = settings.password_salt
 
 app = Flask(__name__)
 app.secret_key = b'\xcd\x04=\x01e\r\x95\xf8\xa5\x9c@\x04\x85\xc2\xff\xcd'
@@ -54,7 +58,7 @@ class Clip(db.Model):
       }
 
 lock = threading.Lock()
-camera = GCCamera(64, lock, db)
+camera = GCCamera(64, lock, db, settings)
 
 time.sleep(2)
 
@@ -74,10 +78,11 @@ def login():
    if request.method == 'POST':
       password_plaintext = request.form['password']
 
-      if SHA512.new(password_plaintext.encode('utf-8')).hexdigest() == password_hash_hex:
+      if SHA512.new((password_plaintext + password_salt).encode('utf-8')).hexdigest() == password_hash_hex:
          session['logged_in'] = True
          return redirect(url_for('index'))
       else:
+         print(" * Someone wrongly entered the password")
          flash("Wrong password.")
    
    if request.method == 'GET' and isLoggedIn():
@@ -163,10 +168,20 @@ def page():
 def clips_for_page(page: int):
    clips_per_page = 20
    all_clips = Clip.query.all()[::-1]
+   page = max(1, page)
    return all_clips[clips_per_page * (page - 1) : clips_per_page * page]
 
 def isLoggedIn():
    return 'logged_in' in session and session['logged_in'] == True
+
+def generate_password_hash(password_plaintext):
+   from random import choice
+   ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+   salt = ''.join(choice(ALPHABET) for i in range(16))
+   salted = password_plaintext + salt
+   pwhash = SHA512.new(salted.encode('utf-8')).hexdigest()
+   print(f"Your password salt is {salt}")
+   print(f"Your password hash is {pwhash}")
 
 if __name__ == '__main__':
    thread = threading.Thread(target=GCCamera.runInBackground, args=(camera,))
