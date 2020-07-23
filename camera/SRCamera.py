@@ -1,15 +1,16 @@
 import cv2
-from .GCMotionDetector import GCMotionDetector
-from .GCRecorder import GCRecorder
+from .SRMotionDetector import SRMotionDetector
+from .SRRecorder import SRRecorder
 import time
 
-class GCCamera(object):
+class SRCamera(object):
     def __init__(self, frameCount, threadLock, database, settings, src=0):
         self.frameCount = frameCount
         self.threadLock = threadLock
+        self.capturesrc = src
         self.videocapture = cv2.VideoCapture(src)
-        self.motionDetector = GCMotionDetector(accumWeight=0.1)
-        self.recorder = GCRecorder(database, settings)
+        self.motionDetector = SRMotionDetector(accumWeight=0.1)
+        self.recorder = SRRecorder(database, settings)
         self.settings = settings
         self.outputframe = None
 
@@ -18,9 +19,18 @@ class GCCamera(object):
 
     def runInBackground(self):
         total = 0
+        reloadingcamera = False
         while True:
             rval, frame = self.videocapture.read()
-            if frame is None: continue
+            if frame is None:
+                print(" * Cannot grab the current frame. Reloading camera...")
+                reloadingcamera = True
+                self.videocapture = cv2.VideoCapture(self.capturesrc)
+                time.sleep(2)
+                continue
+            elif reloadingcamera:
+                print(" * Found camera!")
+                reloadingcamera = False
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.GaussianBlur(gray, (7, 7), 0)
@@ -34,7 +44,7 @@ class GCCamera(object):
 
                 if motion is not None:
                     detectedMovement = True
-                    if self.settings.movement_square_enabled:
+                    if self.settings.movement_box_enabled:
                         (thresh, (minX, minY, maxX, maxY)) = motion
                         cv2.rectangle(frame, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
 

@@ -5,7 +5,7 @@ from threading import Thread
 from time import sleep
 from datetime import datetime
 
-class GCRecorder(object):
+class SRRecorder(object):
     fourcc = cv2.VideoWriter_fourcc(*"avc1")
 
     def __init__(self, database, settings, backlogSize=20):
@@ -41,7 +41,7 @@ class GCRecorder(object):
 
         if not self.recording and movement:
             self._startRecording()
-        elif self.recording and not movement and self.framesSinceLastMovement() > 10:
+        elif self.recording and not movement and self.framesSinceLastMovement > 10 * self.settings.no_movement_wait_time_secs:
             self._stopRecording()
         elif self.recording:
             self.recordingQueue.put(frame)
@@ -59,12 +59,14 @@ class GCRecorder(object):
         self.thread.start()
 
     def _saveVideo(self):
-        if self.settings.save_clips_enabled:
+        videoLength = self.recordingQueue.qsize() / 10.0
+
+        if self.settings.save_clips_enabled and videoLength > self.settings.minimum_clip_length_secs:
             shape = (self.backlogFrames[0].shape[1], self.backlogFrames[0].shape[0])
             dateFormat = "%m-%d-%Y--%I-%M-%S-%p"
             fileName = datetime.now().strftime(dateFormat)
             videoPath = f"static/clips/{fileName}.mp4"
-            self.writer = cv2.VideoWriter(videoPath, GCRecorder.fourcc, 10.0, shape)
+            self.writer = cv2.VideoWriter(videoPath, SRRecorder.fourcc, 10.0, shape)
             
             for frame in self.recordingQueue.queue:
                 self.writer.write(frame)
@@ -73,8 +75,6 @@ class GCRecorder(object):
             thumbnailFrame = self.recordingQueue.queue[int(self.recordingQueue.qsize() / 2)]
             thumbnailPath = f"static/thumbnail/{fileName}.jpg"
             cv2.imwrite(thumbnailPath, thumbnailFrame)
-
-            videoLength = self.recordingQueue.qsize() / 10.0
 
             self._writeClipToDatabase(fileName, "/" + videoPath, "/" + thumbnailPath, videoLength)
 
@@ -93,6 +93,7 @@ class GCRecorder(object):
         self.database.session.add(clip)
         self.database.session.commit()
 
+    @property
     def framesSinceLastMovement(self):
         return self.framesCaptured - self.lastMovementFrame
 

@@ -1,30 +1,29 @@
 <html>
 <head>
-	<title>GCam</title>
+	<title>Scoutr</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
 </head>
 
 <body>
 	<div class="limiter">
 		<div class="container-login100">
-			<div class="wrap-login100 p-t-50 p-b-90">
+			<div class="wrap-login100" style="padding-top: 50px; padding-bottom: 90px;">
 				<form method="POST" class="login100-form validate-form flex-sb flex-w">
-					<span class="login100-form-title p-b-51">
-						Welcome back to GCam
+					<span class="login100-form-title" style="padding-bottom: 51px;">
+						Welcome back to Scoutr
 						<br />
 						<br />
 						Please enter the security camera password
 					</span>
 					
 					
-					<div class="wrap-input100 validate-input m-b-16" data-validate = "Password">
+					<div class="wrap-input100">
 						<input class="input100" type="password" name="password" placeholder="Password">
 						<span class="focus-input100"></span>
 					</div>
 				
 
-					<div class="button-container m-t-17">
+					<div class="button-container" style="margin-top:33px;">
 						<button class="form-button">
 							Login
 						</button>
@@ -35,7 +34,7 @@
 					{% if messages %}
 						{% for message in messages %}
 							<br />
-							<span class="login100-form-title p-b-51" style="color:rgb(185, 32, 21);">{{ message }}</span>
+							<span class="login100-form-title" style="color:rgb(185, 32, 21); padding-bottom: 51px;">{{ message }}</span>
 						{% endfor %}
 					{% endif %}
 				{% endwith %}

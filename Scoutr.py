@@ -12,15 +12,15 @@ from flask_sqlalchemy import SQLAlchemy
 import cv2
 import threading
 from Crypto.Hash import SHA512
-from camera.GCCamera import GCCamera
-from camera.GCSettingsManager import GCSettingsManager
+from camera.SRCamera import SRCamera
+from camera.SRSettingsManager import SRSettingsManager
 import time
 from datetime import datetime
 import timeago
 import os
 import json
 
-settings = GCSettingsManager()
+settings = SRSettingsManager()
 
 password_hash_hex = settings.password_hash
 password_salt = settings.password_salt
@@ -58,9 +58,7 @@ class Clip(db.Model):
       }
 
 lock = threading.Lock()
-camera = GCCamera(64, lock, db, settings)
-
-time.sleep(2)
+camera = SRCamera(64, lock, db, settings)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -69,7 +67,7 @@ def index():
       return redirect(url_for('login'))
 
    if isLoggedIn():
-      return render_template('index.html')
+      return render_template('index.html', settings=settings)
    else:
       return redirect(url_for('login'))
 
@@ -115,11 +113,17 @@ def video_feed():
 
 @app.route('/clips')
 def clips():
+   if not isLoggedIn():
+      return redirect(url_for('index'))
+
    clips = Clip.query.all()
    return render_template('clips.html', clips=clips_for_page(1))#clips[::-1])
 
 @app.route('/delete_clip', methods=['POST'])
 def delete_clip():
+   if not isLoggedIn():
+      return "Insufficient privileges.", 403
+
    if request.form.get('clip_id') is None:
       return "Missing the clip_id form data", 400
 
@@ -141,6 +145,9 @@ def delete_clip():
 
 @app.route('/rename_clip', methods=['POST'])
 def rename_clip():
+   if not isLoggedIn():
+      return "Insufficient privileges.", 403
+
    if request.form.get('clip_id') is None or request.form.get('name') is None:
       return "Missing required form data", 400
    
@@ -156,8 +163,22 @@ def rename_clip():
 
    return "Success.", 200
 
+@app.route('/update_settings', methods=['POST'])
+def update_settings():
+   if not isLoggedIn():
+      return "Insufficient privileges.", 403
+
+   for setting_key in request.form.keys():
+      if hasattr(settings, setting_key):
+         setattr(settings, setting_key, request.form.get(setting_key))
+
+   return "Success.", 200
+
 @app.route('/clips/page', methods=['POST'])
 def page():
+   if not isLoggedIn():
+      return "Insufficient privileges.", 403
+
    if request.form.get('page') is None:
       return "Missing required form data", 400
    
@@ -180,11 +201,18 @@ def generate_password_hash(password_plaintext):
    salt = ''.join(choice(ALPHABET) for i in range(16))
    salted = password_plaintext + salt
    pwhash = SHA512.new(salted.encode('utf-8')).hexdigest()
-   print(f"Your password salt is {salt}")
-   print(f"Your password hash is {pwhash}")
+   print(f"\nYour password salt is:\n{salt}")
+   print(f"\nYour password hash is:\n{pwhash}")
+   print("\nPaste these values into their respective places in ./settings/settings.ini\n")
 
 if __name__ == '__main__':
-   thread = threading.Thread(target=GCCamera.runInBackground, args=(camera,))
+   print("  ________________________  ")
+   print(" |   WELCOME TO SCOUTR!   | ")
+   print(" |        LOADING...      | ")
+   print(" |________________________| ")
+   print("                            ")
+
+   thread = threading.Thread(target=SRCamera.runInBackground, args=(camera,))
    thread.setDaemon(True)
    thread.start()
-   app.run(host='0.0.0.0', port=5000, debug=True, threaded=True, use_reloader=False)
+   app.run(host='0.0.0.0', port=5000, debug=False, threaded=True, use_reloader=False)

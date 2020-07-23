@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-class GCSettingsManager(ConfigParser):
+class SRSettingsManager(ConfigParser):
     LOGIN_SECTION = "Login"
     CAMERA_SECTION = "Camera"
     DEFAULT_INI_FILE_LOCATION = "settings/settings.ini"
@@ -18,7 +18,9 @@ class GCSettingsManager(ConfigParser):
         self._register_setting("password_hash", self.LOGIN_SECTION)
         self._register_setting("password_salt", self.LOGIN_SECTION)
         self._register_setting("save_clips_enabled", self.CAMERA_SECTION, settingtype=bool)
-        self._register_setting("movement_square_enabled", self.CAMERA_SECTION, settingtype=bool)
+        self._register_setting("movement_box_enabled", self.CAMERA_SECTION, settingtype=bool)
+        self._register_setting("minimum_clip_length_secs", self.CAMERA_SECTION, settingtype=float)
+        self._register_setting("no_movement_wait_time_secs", self.CAMERA_SECTION, settingtype=float)
 
     def set(self, section, key, value):
         valuetype = type(value)
@@ -41,28 +43,4 @@ class GCSettingsManager(ConfigParser):
             getter = self.getfloat
 
         settingproperty = property(lambda self: getter(settingsection, settingname), lambda self, value: self.set(settingsection, settingname, value))
-        setattr(GCSettingsManager, settingname, settingproperty)
-
-    """@property
-    def password_hash(self):
-        return self.get(self.LOGIN_SECTION, "password_hash")
-
-    @password_hash.setter
-    def password_hash(self, pwhash):
-        self.set(self.LOGIN_SECTION, "password_hash", pwhash)
-
-    @property
-    def save_clips_enabled(self):
-        return self.getboolean(self.CAMERA_SECTION, "save_clips_enabled")
-
-    @save_clips_enabled.setter
-    def save_clips_enabled(self, enabled: bool):
-        self.set(self.CAMERA_SECTION, "save_clips_enabled", str(enabled))
-
-    @property
-    def movement_square_enabled(self):
-        return self.getboolean(self.CAMERA_SECTION, "movement_square_enabled")
-
-    @movement_square_enabled.setter
-    def movement_square_enabled(self, enabled: bool):
-        self.set(self.CAMERA_SECTION, "movement_square_enabled", str(enabled))"""
+        setattr(SRSettingsManager, settingname, settingproperty)

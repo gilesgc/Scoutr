@@ -4,7 +4,7 @@ import cv2
 
 # https://www.pyimagesearch.com/2019/09/02/opencv-stream-video-to-web-browser-html-page/
 
-class GCMotionDetector(object):
+class SRMotionDetector(object):
 	def __init__(self, accumWeight=0.5):
 		self.accumWeight = accumWeight
 		self.bg = None
