@@ -369,20 +369,15 @@ img {
     hideModal();
   });
 
-  grid = document.getElementById("grid");
-  searchgrid = document.getElementById("searchgrid");
+  var grid = document.getElementById("grid");
+  var searchgrid = document.getElementById("searchgrid");
+  var searchedClipsRemaining = [];
   $("#search").on('input', function() {
     search_text = document.getElementById("search").value.toLowerCase();
-    /*Array.from(document.getElementById("grid").children).forEach(function(clip_preview) {
-      if(clip_preview.querySelector(".clip-name").innerText.toLowerCase().includes(search_text)) {
-        clip_preview.style.display = "block";
-      } else {
-        clip_preview.style.display = "none";
-      }
-    });*/
     if(search_text == "") {
       searchgrid.style.display = "none";
       grid.style.display = "flex";
+      searchedClipsRemaining = [];
     }
     else {
       searchgrid.style.display = "flex";
@@ -396,6 +391,7 @@ img {
           while(searchgrid.lastElementChild) {
             searchgrid.removeChild(searchgrid.lastElementChild);
           }
+          searchedClipsRemaining = data.slice(21, data.length);
           data.forEach(function(clipdata) {
             var clip = new Clip(clipdata);
             searchgrid.append(clip.asElement());
@@ -527,6 +523,17 @@ img {
   var loadedAll = false;
   $(window).scroll(function() {
     if($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
+       
+       if(searchedClipsRemaining.length) {
+         searchedClipsRemaining.slice(0, 20).forEach(function(clipdata) {
+           var clip = new Clip(clipdata);
+           searchgrid.append(clip.asElement());
+         });
+         searchedClipsRemaining = searchedClipsRemaining.slice(21, searchedClipsRemaining.length);
+         
+         return;
+       }
+       
        if(working || loadedAll) {
          return;
        }
