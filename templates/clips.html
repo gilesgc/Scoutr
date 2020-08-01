@@ -392,7 +392,7 @@ img {
             searchgrid.removeChild(searchgrid.lastElementChild);
           }
           searchedClipsRemaining = data.slice(21, data.length);
-          data.forEach(function(clipdata) {
+          data.slice(0, 20).forEach(function(clipdata) {
             var clip = new Clip(clipdata);
             searchgrid.append(clip.asElement());
           });
