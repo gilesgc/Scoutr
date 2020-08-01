@@ -26,6 +26,8 @@ class SRSettingsManager(ConfigParser):
     def set(self, section, key, value):
         try:
             self.setting_type_map[key](value)
+            if self.setting_type_map[key] is bool:
+                assert value in [True, False, "True", "False", "true", "false"]
         except:
             return
         
@@ -37,9 +39,6 @@ class SRSettingsManager(ConfigParser):
 
         with open(self.INI_FILE_LOCATION, "w") as config:
             self.write(config)
-
-    def settingtype(settingname):
-        return 
 
     def _register_setting(self, settingname, settingsection, settingtype=str):
         self.setting_type_map[settingname] = settingtype

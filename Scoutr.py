@@ -1,3 +1,10 @@
+if __name__ == "__main__":
+   print("  ________________________  ")
+   print(" |   WELCOME TO SCOUTR!   | ")
+   print(" |        LOADING...      | ")
+   print(" |________________________| ")
+   print("                            ")
+
 from flask import (
    Flask,
    render_template,
@@ -117,7 +124,7 @@ def clips():
       return redirect(url_for('index'))
 
    clips = Clip.query.all()
-   return render_template('clips.html', clips=clips_for_page(1))#clips[::-1])
+   return render_template('clips.html', clips=clips_for_page(1))
 
 @app.route('/delete_clip', methods=['POST'])
 def delete_clip():
@@ -127,7 +134,11 @@ def delete_clip():
    if request.form.get('clip_id') is None:
       return "Missing the clip_id form data", 400
 
-   clip_id = int(request.form.get('clip_id'))
+   try:
+      clip_id = int(request.form.get('clip_id'))
+   except:
+      return "'clip_id' form data must be an integer.", 400
+
    clip = Clip.query.filter_by(id=clip_id).first()
    if clip is None:
       return "No clip with that id found.", 400
@@ -151,7 +162,11 @@ def rename_clip():
    if request.form.get('clip_id') is None or request.form.get('name') is None:
       return "Missing required form data", 400
    
-   clip_id = int(request.form.get('clip_id'))
+   try:
+      clip_id = int(request.form.get('clip_id'))
+   except:
+      return "'clip_id' form data must be an integer.", 400
+
    clip = Clip.query.filter_by(id=clip_id).first()
    if clip is None:
       return "No clip with that id found.", 400
@@ -168,9 +183,9 @@ def update_settings():
    if not isLoggedIn():
       return "Insufficient privileges.", 403
 
-   for setting_key in request.form.keys():
+   for setting_key, setting_value in request.form.items():
       if hasattr(settings, setting_key):
-         setattr(settings, setting_key, request.form.get(setting_key))
+         setattr(settings, setting_key, setting_value)
 
    return "Success.", 200
 
@@ -182,7 +197,11 @@ def page():
    if request.form.get('page') is None:
       return "Missing required form data", 400
    
-   page_number = int(request.form.get('page'))
+   try:
+      page_number = int(request.form.get('page'))
+   except:
+      return "'page' form data must be an integer.", 400
+
    clips = [clip.jsonData() for clip in clips_for_page(page_number)]
    return json.dumps(clips)
 
@@ -206,12 +225,6 @@ def generate_password_hash(password_plaintext):
    print("\nPaste these values into their respective places in ./settings/settings.ini\n")
 
 if __name__ == '__main__':
-   print("  ________________________  ")
-   print(" |   WELCOME TO SCOUTR!   | ")
-   print(" |        LOADING...      | ")
-   print(" |________________________| ")
-   print("                            ")
-
    thread = threading.Thread(target=SRCamera.runInBackground, args=(camera,))
    thread.setDaemon(True)
    thread.start()

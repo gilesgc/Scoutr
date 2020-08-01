@@ -4,6 +4,7 @@ from queue import Queue
 from threading import Thread
 from time import sleep
 from datetime import datetime
+import logging
 
 class SRRecorder(object):
     fourcc = cv2.VideoWriter_fourcc(*"avc1")
@@ -13,6 +14,7 @@ class SRRecorder(object):
         self.backlogFrames = deque(maxlen=backlogSize)
         self.database = database
         self.settings = settings
+        self.logger = logging.getLogger(__name__)
         self.recordingQueue = None
         self.writer = None
         self.recording = False
@@ -78,7 +80,7 @@ class SRRecorder(object):
 
             self._writeClipToDatabase(fileName, "/" + videoPath, "/" + thumbnailPath, videoLength)
 
-            print(f" * Clip \"{fileName}.mp4\" has been saved")
+            self.logger.info(f"Clip \"{fileName}.mp4\" has been saved")
             
         self.backlogFrames.clear()
         self.recordingQueue.queue.clear()
@@ -87,7 +89,7 @@ class SRRecorder(object):
 
     def _writeClipToDatabase(self, name, videoPath, thumbnailPath, videoLength):
         if self.Clip is None:
-            print(" * ERROR: Class object for Clip not found")
+            self.logger.error("ERROR: Class object for Clip not found")
             return
         clip = self.Clip(name=name, video_path=videoPath, thumbnail_path=thumbnailPath, length=videoLength)
         self.database.session.add(clip)
