@@ -22,7 +22,7 @@ body {
   margin: 0 0 30px;
 }*/
 
-#grid {
+.clips-container {
   display: flex;
   flex-wrap: wrap;
 
@@ -308,7 +308,7 @@ img {
   <input id="search" placeholder="Search">
 </div>
 
-<div id="grid">
+<div class="clips-container" id="grid">
     {% if clips %}
         {% for clip in clips %}
             <div class="clip-preview" clip_id="{{ clip.id }}" clip_video_path="{{ clip.video_path }}">
@@ -322,6 +322,9 @@ img {
             </div>
         {% endfor %}
     {% endif %}
+</div>
+
+<div class="clips-container" id="searchgrid" style="display: none;">
 </div>
 
 <div id="modal">
@@ -366,15 +369,39 @@ img {
     hideModal();
   });
 
+  grid = document.getElementById("grid");
+  searchgrid = document.getElementById("searchgrid");
   $("#search").on('input', function() {
     search_text = document.getElementById("search").value.toLowerCase();
-    Array.from(document.getElementById("grid").children).forEach(function(clip_preview) {
+    /*Array.from(document.getElementById("grid").children).forEach(function(clip_preview) {
       if(clip_preview.querySelector(".clip-name").innerText.toLowerCase().includes(search_text)) {
         clip_preview.style.display = "block";
       } else {
         clip_preview.style.display = "none";
       }
-    });
+    });*/
+    if(search_text == "") {
+      searchgrid.style.display = "none";
+      grid.style.display = "flex";
+    }
+    else {
+      searchgrid.style.display = "flex";
+      grid.style.display = "none";
+
+      $.post("/clips/search", {"query" : search_text}, function(data) {
+          data = JSON.parse(data);
+          if(data.length == 0) {
+            return;
+          }
+          while(searchgrid.lastElementChild) {
+            searchgrid.removeChild(searchgrid.lastElementChild);
+          }
+          data.forEach(function(clipdata) {
+            var clip = new Clip(clipdata);
+            searchgrid.append(clip.asElement());
+          });
+       });
+    }
   });
 
   window.onclick = function(event) {

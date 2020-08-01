@@ -286,7 +286,7 @@
         $.ajax({
           url: "/update_settings",
           type: "post",
-          data: serializeSettings(),
+          data: data,
           success: function() {
             alert("Your settings have been updated.");
             settings = data;

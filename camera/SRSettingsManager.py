@@ -25,9 +25,10 @@ class SRSettingsManager(ConfigParser):
 
     def set(self, section, key, value):
         try:
-            self.setting_type_map[key](value)
             if self.setting_type_map[key] is bool:
                 assert value in [True, False, "True", "False", "true", "false"]
+            else:
+                self.setting_type_map[key](value)
         except:
             return
         

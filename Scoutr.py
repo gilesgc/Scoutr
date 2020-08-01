@@ -205,6 +205,19 @@ def page():
    clips = [clip.jsonData() for clip in clips_for_page(page_number)]
    return json.dumps(clips)
 
+@app.route('/clips/search', methods=['POST'])
+def search():
+   if not isLoggedIn():
+      return "Insufficient privileges.", 403
+   
+   if request.form.get('query') is None:
+      return "Missing required form data", 400
+   
+   query = str(request.form.get('query'))
+   clips = Clip.query.filter(Clip.name.contains(query))
+   
+   return json.dumps([clip.jsonData() for clip in clips])
+
 def clips_for_page(page: int):
    clips_per_page = 20
    all_clips = Clip.query.all()[::-1]
