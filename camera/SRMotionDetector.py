@@ -2,6 +2,7 @@ import numpy as np
 import imutils
 import cv2
 
+# Almost all content of this class taken directly from here:
 # https://www.pyimagesearch.com/2019/09/02/opencv-stream-video-to-web-browser-html-page/
 
 class SRMotionDetector(object):

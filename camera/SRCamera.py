@@ -18,10 +18,12 @@ class SRCamera(object):
         logging.basicConfig(level=logging.INFO, format='[%(module)s] %(message)s')
         self.logger = logging.getLogger(__name__)
 
-    def currentFrame(self):
+        self.logger.info("Camera initialized.")
+
+    def current_frame(self):
         return self.outputframe
 
-    def runInBackground(self):
+    def start_surveillance(self):
         total = 0
         reloadingcamera = False
         while True:

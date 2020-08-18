@@ -87,7 +87,7 @@ def login():
          session['logged_in'] = True
          return redirect(url_for('index'))
       else:
-         print(" * Someone wrongly entered the password")
+         print(" * Someone entered the wrong password")
          flash("Wrong password.")
    
    if request.method == 'GET' and isLoggedIn():
@@ -98,7 +98,7 @@ def login():
 def gen():
    while True:
       with lock:
-         outputframe = camera.currentFrame()
+         outputframe = camera.current_frame()
          if outputframe is None:
             continue
 
@@ -107,7 +107,7 @@ def gen():
          if not flag:
             continue
       
-      yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
+      yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n'
 
       time.sleep(0.1)
 
@@ -238,7 +238,7 @@ def generate_password_hash(password_plaintext):
    print("\nPaste these values into their respective places in ./settings/settings.ini\n")
 
 if __name__ == '__main__':
-   thread = threading.Thread(target=SRCamera.runInBackground, args=(camera,))
+   thread = threading.Thread(target=SRCamera.start_surveillance, args=(camera,))
    thread.setDaemon(True)
    thread.start()
    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True, use_reloader=False)

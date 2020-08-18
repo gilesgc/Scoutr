@@ -342,6 +342,7 @@ img {
     	<image class="modal-button" title="Rename" src="/static/resources/edit.png" onclick="rename()"></image>
     	<!--<image class="modal-button" title="Favorite" src="/static/resources/star.png" onclick="favorite()"></image>-->
     </div>
+  </div>
 </div>
 
 <div id="snackbar"></div>
@@ -426,7 +427,9 @@ img {
   function showSnackbar(text) {
     snackbar.innerHTML = text;
     snackbar.className = "show"
-    setTimeout(function() {snackbar.className = snackbar.className.replace("show", "")}, 2900);
+    setTimeout(function() {
+      snackbar.className = snackbar.className.replace("show", "")
+    }, 2900);
   }
 
   function rename() {
