@@ -9,7 +9,7 @@ import logging
 class SRRecorder(object):
     fourcc = cv2.VideoWriter_fourcc(*"avc1")
 
-    def __init__(self, database, settings, backlogSize=20):
+    def __init__(self, database, settings, clipClass, backlogSize=20):
         self.backlogSize = backlogSize
         self.backlogFrames = deque(maxlen=backlogSize)
         self.database = database
@@ -21,17 +21,7 @@ class SRRecorder(object):
         self.thread = None
         self.framesCaptured = 0
         self.lastMovementFrame = 0
-        self.Clip = None
-
-        #Find the clip class in the database object
-        #kind of messy but it works...
-        for clazz in database.Model._decl_class_registry.values():
-            try:
-                if clazz.__tablename__ == "clip":
-                    self.Clip = clazz
-                    break
-            except:
-                pass
+        self.Clip = clipClass
     
     def addFrame(self, frame, movement: bool):
         if self.thread is not None and self.thread.isAlive():

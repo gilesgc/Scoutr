@@ -65,7 +65,7 @@ class Clip(db.Model):
       }
 
 lock = threading.Lock()
-camera = SRCamera(64, lock, db, settings)
+camera = SRCamera(64, lock, db, settings, Clip)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

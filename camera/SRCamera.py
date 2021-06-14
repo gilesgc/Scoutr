@@ -5,13 +5,13 @@ import time
 import logging
 
 class SRCamera(object):
-    def __init__(self, frameCount, threadLock, database, settings, src=0):
+    def __init__(self, frameCount, threadLock, database, settings, clipClass, src=0):
         self.frameCount = frameCount
         self.threadLock = threadLock
         self.capturesrc = src
         self.videocapture = cv2.VideoCapture(src)
         self.motionDetector = SRMotionDetector(accumWeight=0.1)
-        self.recorder = SRRecorder(database, settings)
+        self.recorder = SRRecorder(database, settings, clipClass)
         self.settings = settings
         self.outputframe = None
 
