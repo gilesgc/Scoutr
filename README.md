@@ -40,3 +40,6 @@ The function will generate your hash and salt, which you should copy and paste i
 <br>
 <br>
 Finally, to run the webserver, simply open Scoutr.py and navigate to localhost:5000 in your browser. The password you should enter is the one that you set earlier.
+
+## Screenshots
+![image](https://user-images.githubusercontent.com/50000301/224463457-48e42954-1a4b-482d-875f-8f293b824cf8.png)
